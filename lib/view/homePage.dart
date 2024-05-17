@@ -6,8 +6,6 @@ import 'package:flutter/widgets.dart';
 import 'package:kejaksaan/utils/sesionManager.dart';
 import 'package:kejaksaan/view/PageLaporanJmsList.dart';
 import 'package:kejaksaan/view/PageLaporanList.dart';
-import 'package:kejaksaan/view/laporanJMSPage.dart';
-import 'package:kejaksaan/view/laporanPage.dart';
 import 'package:http/http.dart' as http;
 import 'package:kejaksaan/view/loginPage.dart';
 import 'package:kejaksaan/view/profilPage.dart';
@@ -29,7 +27,7 @@ class _HomePageState extends State<HomePage> {
       var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
 
       // Menambahkan data teks
-      request.fields['id_user'] = "1";
+      request.fields['id_user'] = "${sessionManager.idUser}";
       request.fields['rating'] = "$rating";
 
       print("${sessionManager.idUser}\n${rating}");
