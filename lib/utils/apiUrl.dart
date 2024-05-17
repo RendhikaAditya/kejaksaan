@@ -7,5 +7,5 @@ class ApiUrl {
 
   ApiUrl._internal();
 
-  String baseUrl = "http://192.30.35.134/apiBudaya/";
+  String baseUrl = "http://192.30.35.134/apiKejaksaan/";
 }

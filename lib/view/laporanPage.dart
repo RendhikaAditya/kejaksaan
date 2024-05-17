@@ -8,8 +8,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:kejaksaan/utils/sesionManager.dart';
+import 'package:kejaksaan/view/PageLaporanList.dart';
 
 import '../utils/apiUrl.dart';
+import 'homePage.dart';
 
 class LaporanPage extends StatefulWidget {
   const LaporanPage({super.key});
@@ -52,7 +55,7 @@ class _LaporanPageState extends State<LaporanPage> {
     }
   }
 
-  Future<void> _tambahDataSejarawan() async {
+  Future<void> _tambahData() async {
     if (_formKey.currentState!.validate()) {
       final String apiUrl = '${ApiUrl().baseUrl}laporan.php';
 
@@ -60,11 +63,13 @@ class _LaporanPageState extends State<LaporanPage> {
       var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
 
       // Menambahkan data teks
-      request.fields['id_user'] = "1";
-      request.fields['laporan_text'] = _controllerLaporan as String;
+      request.fields['id_user'] = sessionManager.idUser.toString();
+      request.fields['laporan_text'] = _controllerLaporan.text;
       request.fields['laporan_pdf'] = _base64String;
-      request.fields['status'] = "Dilaporkan";
-      request.fields['tipe_laporan'] = _selectedOption as String;
+      request.fields['status'] = "Pending";
+      request.fields['tipe_laporan'] = _selectedOption!;
+
+      print(_selectedOption!);
 
       try {
         var streamedResponse = await request.send();
@@ -74,6 +79,11 @@ class _LaporanPageState extends State<LaporanPage> {
           // Jika berhasil, periksa respons JSON
           Map<String, dynamic> jsonResponse = json.decode(response.body);
           if (jsonResponse['sukses']) {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => PageLaporanList()),
+                    (route) => false
+            );
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Data berhasil ditambahkan')),
             );
@@ -87,7 +97,7 @@ class _LaporanPageState extends State<LaporanPage> {
         } else {
           // Tanggapan tidak berhasil, tampilkan kode status
           throw Exception(
-              'Gagal menambahkan data sejarawan: ${response.statusCode}');
+              'Gagal menambahkan data : ${response.statusCode}');
         }
       } catch (e) {
         throw Exception('Gagal melakukan request: $e');
@@ -222,7 +232,7 @@ class _LaporanPageState extends State<LaporanPage> {
               Container(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: (){},
+                  onPressed: _tambahData,
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.blue[900],
