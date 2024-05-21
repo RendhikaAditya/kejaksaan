@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kejaksaan/utils/sesionManager.dart';
 import 'package:kejaksaan/view/loginPage.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -7,6 +8,8 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Future.delayed(Duration(seconds: 2), () {
+      sessionManager.getSession();
+      print("splash :: ${sessionManager.idUser}");
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => LoginPage(),

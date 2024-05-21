@@ -3,8 +3,9 @@ import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 
 class PdfViewPage extends StatelessWidget {
   final String url;
+  final String title;
 
-  PdfViewPage({required this.url});
+  PdfViewPage({required this.url, required this.title});
 
 
   @override
@@ -12,7 +13,7 @@ class PdfViewPage extends StatelessWidget {
     print(url);
     return Scaffold(
       appBar: AppBar(
-        title: Text('PDF Viewer'),
+        title: Text('$title'),
       ),
       body: PDF().fromUrl(
         url,

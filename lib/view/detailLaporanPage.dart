@@ -24,9 +24,9 @@ class _DetailLaporanPageState extends State<DetailLaporanPage> {
   String noHp = "";
   String ktp = "";
 
-  Future<ModelUser?> getUser() async {
+  Future<ModelUser?> getUser(String idUser) async {
     try {
-      http.Response res = await http.get(Uri.parse('${ApiUrl().baseUrl}auth.php?id_user=5'));
+      http.Response res = await http.get(Uri.parse('${ApiUrl().baseUrl}auth.php?id_user=${idUser}'));
 
       if (res.statusCode == 200) {
         // Response OK, parse JSON
@@ -61,7 +61,7 @@ class _DetailLaporanPageState extends State<DetailLaporanPage> {
   Future<void> _editData(Datum dataItem, String status) async {
     final String apiUrl = '${ApiUrl().baseUrl}laporan.php';
     var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
-    request.fields['id_user'] = '1';
+    request.fields['id_user'] = sessionManager.idUser.toString();
     request.fields['id_laporan'] = dataItem.idLaporan;
     request.fields['laporan_text'] = dataItem.laporanText;
     request.fields['laporan_pdf'] = "";
@@ -104,7 +104,7 @@ class _DetailLaporanPageState extends State<DetailLaporanPage> {
   @override
   void initState() {
     super.initState();
-    getUser();
+    getUser(widget.laporan.idUser);
   }
 
   @override
@@ -156,7 +156,7 @@ class _DetailLaporanPageState extends State<DetailLaporanPage> {
                                 MaterialPageRoute(
                                     builder: (context) => PdfViewPage(
                                         url:
-                                        "${ApiUrl().baseUrl}${ktp}")),
+                                        "${ApiUrl().baseUrl}${ktp}", title: "Ktp $nama",)),
                               );
                             },
                             child: Text('Lihat KTP'),
@@ -188,7 +188,7 @@ class _DetailLaporanPageState extends State<DetailLaporanPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => PdfViewPage(url:"${ApiUrl().baseUrl}${laporan.laporanPdf}")),
+                  MaterialPageRoute(builder: (context) => PdfViewPage(url:"${ApiUrl().baseUrl}${laporan.laporanPdf}", title: laporan.laporanPdf,)),
                 );
               },
               child: Text('Lihat File Laporan'),

@@ -26,11 +26,13 @@ class _PageLaporanJmsListState extends State<PageLaporanJmsList> {
   Future<List<Datum>?> getLaporan() async {
     try {
       http.Response res = await http.get(Uri.parse(
-          sessionManager.level=="admin"
+          sessionManager.level=="Admin"
               ?'${ApiUrl().baseUrl}jms.php'
               :'${ApiUrl().baseUrl}jms.php?id=${sessionManager.idUser}'
       ));
-
+      print( sessionManager.level=="Admin"
+          ?'${ApiUrl().baseUrl}jms.php'
+          :'${ApiUrl().baseUrl}jms.php?id=${sessionManager.idUser}');
       if(modelLaporanJmsFromJson(res.body).sukses){
         print("Data diperoleh :: ${modelLaporanJmsFromJson(res.body).data}");
         return modelLaporanJmsFromJson(res.body).data;
@@ -62,7 +64,7 @@ class _PageLaporanJmsListState extends State<PageLaporanJmsList> {
   Future<void> _editData(Datum dataItem, String status) async {
     final String apiUrl = '${ApiUrl().baseUrl}jms.php';
     var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
-    request.fields['id_user'] = '1';
+    request.fields['id_user'] = dataItem.idUser;
     request.fields['id_jms'] = dataItem.idJms;
     request.fields['sekolah'] = dataItem.sekolah;
     request.fields['status'] = status;
@@ -184,12 +186,14 @@ class _PageLaporanJmsListState extends State<PageLaporanJmsList> {
                         return GestureDetector(
                           onTap: () {
                             if (sessionManager.level != "Admin") {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => LaporanJmsPage(dataItem),
-                                ),
-                              );
+                              if(dataItem.status=="Pending"){
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => LaporanJmsPage(dataItem),
+                                  ),
+                                );
+                              }
                             } else {
                               // Tidak ada aksi yang diambil jika level bukan "Admin"
                             }

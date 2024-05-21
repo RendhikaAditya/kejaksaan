@@ -33,8 +33,8 @@ class ProfilePage extends StatelessWidget {
           children: [
             Row(
               children: [
-                Image.asset("images/icon.jpeg", width: 200,),
-                SizedBox(width: 30,),
+                Image.asset("images/icon.jpeg", width: 150,),
+                SizedBox(width: 20,),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -69,7 +69,7 @@ class ProfilePage extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (context) => PdfViewPage(
-                                url: "${ApiUrl().baseUrl}${sessionManager.ktp}")),
+                                url: "${ApiUrl().baseUrl}${sessionManager.ktp}", title: "KTP ${sessionManager.fullname}",)),
                       );
                     },
                     child: Text('Lihat Ktp'),

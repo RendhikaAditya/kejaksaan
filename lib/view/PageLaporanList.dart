@@ -91,17 +91,16 @@ class _PageLaporanListState extends State<PageLaporanList> {
   Future<List<Datum>?> getLaporan() async {
     try {
       http.Response res = await http.get(Uri.parse(
-          sessionManager.level=="admin"
-              ?'${ApiUrl().baseUrl}laporan.php'
-              :'${ApiUrl().baseUrl}laporan.php?id=${sessionManager.idUser}'
-      ));
+          sessionManager.level == "Admin"
+              ? '${ApiUrl().baseUrl}laporan.php'
+              : '${ApiUrl().baseUrl}laporan.php?id=${sessionManager.idUser}'));
 
       print("Terjadi kesalahan: ${modelLaporanFromJson(res.body).pesan}");
 
-      if(modelLaporanFromJson(res.body).sukses){
+      if (modelLaporanFromJson(res.body).sukses) {
         print("Data diperoleh :: ${modelLaporanFromJson(res.body).data}");
         return modelLaporanFromJson(res.body).data;
-      }else{
+      } else {
         setState(() {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("${modelLaporanFromJson(res.body).pesan}")),
@@ -139,50 +138,47 @@ class _PageLaporanListState extends State<PageLaporanList> {
   }
 
   Future<void> _editData(Datum dataItem, String status) async {
-      final String apiUrl = '${ApiUrl().baseUrl}laporan.php';
-      var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
-      request.fields['id_user'] = '1';
-      request.fields['id_laporan'] = dataItem.idLaporan;
-      request.fields['laporan_text'] = dataItem.laporanText;
-      request.fields['laporan_pdf'] = "";
-      request.fields['status'] =status;
-      request.fields['tipe_laporan'] = dataItem.tipeLaporan;
+    final String apiUrl = '${ApiUrl().baseUrl}laporan.php';
+    var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
+    request.fields['id_user'] = dataItem.idUser;
+    request.fields['id_laporan'] = dataItem.idLaporan;
+    request.fields['laporan_text'] = dataItem.laporanText;
+    request.fields['laporan_pdf'] = "";
+    request.fields['status'] = status;
+    request.fields['tipe_laporan'] = dataItem.tipeLaporan;
 
+    try {
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
 
-      try {
-        var streamedResponse = await request.send();
-        var response = await http.Response.fromStream(streamedResponse);
-
-        if (response.statusCode == 200) {
-          // Jika berhasil, periksa respons JSON
-          Map<String, dynamic> jsonResponse = json.decode(response.body);
-          if (jsonResponse['sukses']) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Data berhasil diperbarui')),
-            );
-            refreshLaporan();
-          } else {
-            // Tampilkan pesan error dari server
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(jsonResponse['pesan'])),
-            );
-          }
+      if (response.statusCode == 200) {
+        // Jika berhasil, periksa respons JSON
+        Map<String, dynamic> jsonResponse = json.decode(response.body);
+        if (jsonResponse['sukses']) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Data berhasil diperbarui')),
+          );
+          refreshLaporan();
         } else {
-          // Tanggapan tidak berhasil, tampilkan kode status
-          throw Exception(
-              'Gagal memperbarui data : ${response.statusCode}');
+          // Tampilkan pesan error dari server
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(jsonResponse['pesan'])),
+          );
         }
-      } catch (e) {
-        throw Exception('Gagal melakukan request: $e');
+      } else {
+        // Tanggapan tidak berhasil, tampilkan kode status
+        throw Exception('Gagal memperbarui data : ${response.statusCode}');
       }
+    } catch (e) {
+      throw Exception('Gagal melakukan request: $e');
+    }
   }
 
   void _hapusData(BuildContext context, String id) async {
     final String apiUrl = '${ApiUrl().baseUrl}laporan.php';
 
     try {
-      var response =
-          await http.get(Uri.parse("$apiUrl?id_laporan=$id"));
+      var response = await http.get(Uri.parse("$apiUrl?id_laporan=$id"));
 
       if (response.statusCode == 200) {
         // Jika berhasil, periksa respons JSON
@@ -200,8 +196,7 @@ class _PageLaporanListState extends State<PageLaporanList> {
         }
       } else {
         // Tanggapan tidak berhasil, tampilkan kode status
-        throw Exception(
-            'Gagal menghapus data : ${response.statusCode}');
+        throw Exception('Gagal menghapus data : ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Gagal melakukan request: $e');
@@ -219,7 +214,7 @@ class _PageLaporanListState extends State<PageLaporanList> {
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => HomePage()),
-                  (Route<dynamic> route) => false,
+              (Route<dynamic> route) => false,
             );
           },
         ),
@@ -276,19 +271,24 @@ class _PageLaporanListState extends State<PageLaporanList> {
                           Datum? dataItem = data[index];
                           return GestureDetector(
                             onTap: () {
-                              sessionManager.level!="Admin"
+                              sessionManager.level != "Admin"
                                   ? Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => PdfViewPage(
-                                        url:
-                                        "${ApiUrl().baseUrl}${dataItem.laporanPdf}")),
-                              )
-                                  :Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => DetailLaporanPage(laporan: dataItem,)),
-                              );
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => PdfViewPage(
+                                                url:
+                                                    "${ApiUrl().baseUrl}${dataItem.laporanPdf}",
+                                                title: dataItem.laporanPdf,
+                                              )),
+                                    )
+                                  : Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              DetailLaporanPage(
+                                                laporan: dataItem,
+                                              )),
+                                    );
                             },
                             child: Container(
                               margin:
@@ -367,7 +367,8 @@ class _PageLaporanListState extends State<PageLaporanList> {
                                                     children: [
                                                       ElevatedButton(
                                                         onPressed: () {
-                                                          _editData(dataItem, "Rejected");
+                                                          _editData(dataItem,
+                                                              "Rejected");
                                                         },
                                                         style: ElevatedButton
                                                             .styleFrom(
@@ -390,7 +391,8 @@ class _PageLaporanListState extends State<PageLaporanList> {
                                                       ),
                                                       ElevatedButton(
                                                         onPressed: () {
-                                                          _editData(dataItem, "Approved");
+                                                          _editData(dataItem,
+                                                              "Approved");
                                                         },
                                                         style: ElevatedButton
                                                             .styleFrom(
@@ -408,51 +410,190 @@ class _PageLaporanListState extends State<PageLaporanList> {
                                                       ),
                                                     ],
                                                   )
-                                                : Text(
-                                                    'Status: ${dataItem.status}',
+                                                : Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        'Status: ',
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                      dataItem.status ==
+                                                              "Pending"
+                                                          ? ElevatedButton(
+                                                              onPressed: () {},
+                                                              style:
+                                                                  ElevatedButton
+                                                                      .styleFrom(
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                        horizontal:
+                                                                            50),
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .grey, // Warna latar belakang tombol
+                                                              ),
+                                                              child: Text(
+                                                                  'Pending',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .black)),
+                                                            )
+                                                          : dataItem.status ==
+                                                                  "Approved"
+                                                              ? ElevatedButton(
+                                                                  onPressed:
+                                                                      () {},
+                                                                  style: ElevatedButton
+                                                                      .styleFrom(
+                                                                    padding: EdgeInsets.symmetric(
+                                                                        horizontal:
+                                                                            50),
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .green, // Warna latar belakang tombol
+                                                                  ),
+                                                                  child: Text(
+                                                                      'Approved',
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              Colors.white)),
+                                                                )
+                                                              : ElevatedButton(
+                                                                  onPressed:
+                                                                      () {},
+                                                                  style: ElevatedButton
+                                                                      .styleFrom(
+                                                                    padding: EdgeInsets.symmetric(
+                                                                        horizontal:
+                                                                            50),
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .red, // Warna latar belakang tombol
+                                                                  ),
+                                                                  child: Text(
+                                                                      'Rejected',
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              Colors.white)),
+                                                                )
+                                                    ],
+                                                  )
+                                            : Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Status: ',
                                                     style: TextStyle(
                                                       fontSize: 14,
                                                     ),
-                                                  )
-                                            : Text(
-                                                'Status: ${dataItem.status}',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                ),
-                                              ),
+                                                  ),
+                                                  dataItem.status == "Pending"
+                                                      ? ElevatedButton(
+                                                          onPressed: () {},
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            padding: EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        50),
+                                                            backgroundColor: Colors
+                                                                .grey, // Warna latar belakang tombol
+                                                          ),
+                                                          child: Text('Pending',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .black)),
+                                                        )
+                                                      : dataItem.status ==
+                                                              "Approved"
+                                                          ? ElevatedButton(
+                                                              onPressed: () {},
+                                                              style:
+                                                                  ElevatedButton
+                                                                      .styleFrom(
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                        horizontal:
+                                                                            50),
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .green, // Warna latar belakang tombol
+                                                              ),
+                                                              child: Text(
+                                                                  'Approved',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white)),
+                                                            )
+                                                          : ElevatedButton(
+                                                              onPressed: () {},
+                                                              style:
+                                                                  ElevatedButton
+                                                                      .styleFrom(
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                        horizontal:
+                                                                            50),
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .red, // Warna latar belakang tombol
+                                                              ),
+                                                              child: Text(
+                                                                  'Rejected',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white)),
+                                                            )
+                                                ],
+                                              )
                                       ]),
-                                  sessionManager.level=="Admin"
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => PdfViewPage(
-                                                  url:
-                                                  "${ApiUrl().baseUrl}${dataItem.laporanPdf}")),
-                                        );
-                                      },
-                                      child: Icon(
-                                          Icons.picture_as_pdf_outlined))
-                                  : dataItem.status.toLowerCase() == "pending"
+                                  sessionManager.level == "Admin"
                                       ? GestureDetector(
-                                          onTap: () {
-                                            _hapusData(
-                                                context, dataItem.idLaporan);
-                                          },
-                                          child: Icon(Icons.delete_outline))
-                                      : GestureDetector(
                                           onTap: () {
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                  builder: (context) => PdfViewPage(
-                                                      url:
-                                                          "${ApiUrl().baseUrl}${dataItem.laporanPdf}")),
+                                                  builder: (context) =>
+                                                      PdfViewPage(
+                                                        url:
+                                                            "${ApiUrl().baseUrl}${dataItem.laporanPdf}",
+                                                        title:
+                                                            dataItem.laporanPdf,
+                                                      )),
                                             );
                                           },
                                           child: Icon(
-                                              Icons.remove_red_eye_outlined)),
+                                              Icons.picture_as_pdf_outlined))
+                                      : dataItem.status.toLowerCase() ==
+                                              "pending"
+                                          ? GestureDetector(
+                                              onTap: () {
+                                                _hapusData(context,
+                                                    dataItem.idLaporan);
+                                              },
+                                              child: Icon(Icons.delete_outline))
+                                          : GestureDetector(
+                                              onTap: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          PdfViewPage(
+                                                            url:
+                                                                "${ApiUrl().baseUrl}${dataItem.laporanPdf}",
+                                                            title: dataItem
+                                                                .laporanPdf,
+                                                          )),
+                                                );
+                                              },
+                                              child: Icon(Icons
+                                                  .remove_red_eye_outlined)),
                                 ],
                               ),
                             ),
@@ -465,15 +606,15 @@ class _PageLaporanListState extends State<PageLaporanList> {
       ]),
       floatingActionButton: sessionManager.level != "Admin"
           ? FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => LaporanPage()),
-          );
-        },
-        tooltip: 'Add Report',
-        child: const Icon(Icons.add),
-      )
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LaporanPage()),
+                );
+              },
+              tooltip: 'Add Report',
+              child: const Icon(Icons.add),
+            )
           : null,
     );
   }

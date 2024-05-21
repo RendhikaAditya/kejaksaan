@@ -79,7 +79,7 @@ class _RegistProfileState extends State<RegistProfile> {
 
         // Decode response body
         ModelBase data = modelBaseFromJson(res.body);
-        print(sessionManager.idUser);
+        print(data);
 
         try {
           if (sessionManager.idUser != null) {
@@ -90,7 +90,7 @@ class _RegistProfileState extends State<RegistProfile> {
               _txtNama.text,
               _txtAlamat.text,
               _txtNoTelpon.text,
-              _base64String != '' ? _base64String : sessionManager.ktp.toString(),
+              sessionManager.ktp.toString(),
               sessionManager.level.toString(),
             );
             sessionManager.getSession();

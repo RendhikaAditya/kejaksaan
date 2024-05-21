@@ -109,9 +109,12 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     errorMessage = "";
     isLoading = false;
-
+    setState(() {
+      sessionManager.getSession();
+    });
     print(sessionManager.value);
-    if (sessionManager.value == true) {
+
+    if (sessionManager.idUser!=null) {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => HomePage()),
